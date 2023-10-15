@@ -7,7 +7,7 @@ export const ThemeProvider = ({ children = null as ReactNode }) => (
   <ConfigProvider
     theme={{
       token: {
-        colorPrimary: "#a1701d"
+        colorPrimary: "#00b96b"
       }
     }}>
     <StyleProvider container={document.querySelector("plasmo-csui").shadowRoot}>
