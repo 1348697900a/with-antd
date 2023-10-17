@@ -1,5 +1,7 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging"
+import { useStorage } from "@plasmohq/storage/hook"
 
+import { storage } from "~background"
 import { EventType } from "~eventType/index"
 
 const ERR_CODE = -1
@@ -11,7 +13,13 @@ const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
     message: ""
   }
   try {
-    const data = await (await fetch("http://localhost:3000/aa")).json()
+    const data = await (
+      await fetch("http://localhost:3000/aa", {
+        method: "POST",
+        body: JSON.stringify(req.body || {})
+      })
+    ).json()
+    console.log(data)
     response.data = data
   } catch (e) {
     response.code = ERR_CODE
@@ -21,7 +29,12 @@ const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
     active: true,
     lastFocusedWindow: true
   })
-  chrome.tabs.sendMessage(tab.id, { ...response, name: EventType.result })
+  chrome.tabs.sendMessage(tab.id, {
+    ...response,
+    name: EventType.result
+  })
+  console.log("send")
+
   res.send(response)
 }
 

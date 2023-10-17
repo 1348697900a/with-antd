@@ -2,6 +2,8 @@ import { createWorker } from "tesseract.js"
 
 import { sendToBackground } from "@plasmohq/messaging"
 
+import { storage } from "~background"
+
 const initStatusList = [
   "loading tesseract core",
   "initializing tesseract",
@@ -100,7 +102,12 @@ const createDragElement = () => {
   )
 }
 const main = async () => {
-  initWorker()
-  createDragElement()
+  const { storageFormData } = await storage.getAll()
+  const { url } = JSON.parse(storageFormData || "{}")
+  if (url.includes(window.location.href)) {
+    initWorker()
+    createDragElement()
+  }
+  alert(window.location.href)
 }
 main()

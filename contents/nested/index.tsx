@@ -4,11 +4,7 @@ import antdResetCssText from "data-text:antd/dist/reset.css"
 import cssText from "data-text:~/contents/nested/index.css"
 import type { PlasmoCSConfig } from "plasmo"
 import React, { useEffect, useMemo, useState } from "react"
-import { createWorker } from "tesseract.js"
-import hljs from 'highlight.js'
-import 'highlight.js/styles/default.css'
 
-import { ThemeProvider } from "~theme"
 import CodeBlock from "~components/codeBlock/index"
 
 import "./index.css"
@@ -17,6 +13,7 @@ import { sendToBackground } from "@plasmohq/messaging"
 import { useStorage } from "@plasmohq/storage/hook"
 
 import { EventType } from "~eventType/index"
+import { storage } from "~background"
 
 export const config: PlasmoCSConfig = {
   matches: ["http://localhost:5173/*"]
@@ -40,11 +37,7 @@ function IndexOption() {
   chrome.runtime.onMessage.addListener(async (msg, _, res) => {
     sendToBackground({
       name: "log",
-      body: {
-        ...msg,
-        open,
-        percent
-      }
+      body: msg
     })
     if (msg.name === EventType.progress) {
       const nums = Math.floor(Number(msg.progress) * 100)
@@ -53,9 +46,12 @@ function IndexOption() {
     }
     /** 接口返回的数据 */
     if (msg.name === EventType.result) {
+      sendToBackground({
+        name: "log",
+        body: msg?.data?.code
+      })
       setResult(msg?.data?.code || "")
     }
-
     res({ status: "ok" })
   })
 
@@ -64,7 +60,12 @@ function IndexOption() {
   }
 
   const onClose = () => {
-    setOpen(false)
+    setOpen(false);
+    init()
+  }
+  const init = () => {
+    setPercent(PROGRESS_INIT_VALUE)
+    setResult('');
   }
 
   const showProgress = useMemo(
